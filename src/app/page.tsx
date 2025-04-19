@@ -1,103 +1,84 @@
-import Image from "next/image";
+"use client"; // 状態を持つため Client Component に変更
+
+import { useState, useCallback } from 'react';
+import { MainLayout } from "@/components/layouts/main-layout";
+import { PitcherList } from "@/components/features/pitchers/pitcher-list";
+import { SeasonSelector } from '@/components/features/stats/season-selector';
+import { GameLogTable } from '@/components/features/stats/game-log-table';
+import { PitchDetailView } from '@/components/features/stats/pitch-detail-view';
+import { ModeToggle } from "@/components/common/mode-toggle";
+import pitchersData from '@/lib/constants/pitchers.json'; // データを読み込む
+
+// 型定義 (共通化推奨)
+interface Pitcher {
+  id: number;
+  name: string;
+  nameEn: string;
+}
+interface PitchersData {
+  japanesePitchers: Pitcher[];
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [selectedPitcherId, setSelectedPitcherId] = useState<number | null>(null);
+  const [selectedSeason, setSelectedSeason] = useState<number | null>(null);
+  const [selectedGamePk, setSelectedGamePk] = useState<number | null>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // JSONデータを読み込む
+  const { japanesePitchers } = pitchersData as PitchersData;
+
+  // ハンドラ関数を useCallback でラップ
+  const handlePitcherSelect = useCallback((pitcherId: number | null) => {
+    setSelectedPitcherId(pitcherId);
+    setSelectedSeason(null);
+    setSelectedGamePk(null);
+  }, []); // 依存配列は空 (setSelected... は参照が安定しているため)
+
+  const handleSeasonChange = useCallback((season: number | null) => {
+    setSelectedSeason(season);
+    setSelectedGamePk(null);
+  }, []); // 依存配列は空
+
+  const handleGameSelect = useCallback((gamePk: number | null) => {
+    setSelectedGamePk(gamePk);
+  }, []); // 依存配列は空
+
+  const leftPanelContent = (
+    <PitcherList
+      pitchers={japanesePitchers}
+      onSelect={handlePitcherSelect}
+      selectedPitcherId={selectedPitcherId}
+    />
+  );
+
+  const rightPanelContent = (
+    <div className="space-y-6 relative pt-12 md:pt-0">
+      <div className="absolute top-4 right-4 md:hidden">
+        <ModeToggle />
+      </div>
+      <div className="absolute top-4 right-6 hidden md:block">
+        <ModeToggle />
+      </div>
+
+      <div>
+        <SeasonSelector pitcherId={selectedPitcherId} onSeasonChange={handleSeasonChange} />
+        <div className="mt-4">
+          <GameLogTable
+            pitcherId={selectedPitcherId}
+            season={selectedSeason}
+            onRowClick={handleGameSelect}
+            selectedGamePk={selectedGamePk}
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+
+      <div>
+        <PitchDetailView gamePk={selectedGamePk} pitcherId={selectedPitcherId} />
+      </div>
     </div>
+  );
+
+  return (
+    <MainLayout leftPanel={leftPanelContent} rightPanel={rightPanelContent} />
   );
 }

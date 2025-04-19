@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: deps # 開発時は依存関係のみインストールしたステージを使用
+    container_name: mlb-pitch-history-dev
+    command: npm run dev
+    volumes:
+      - .:/app # カレントディレクトリをコンテナの/appにマウント
+      - /app/node_modules # node_modulesはマウントしない
+      - /app/.next # .nextもマウントしない
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      # 他に必要な環境変数があればここに追加
+    # healthcheck:
+    #   test: ["CMD", "curl", "--fail", "http://localhost:3000"] # 簡単なヘルスチェック
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3 
