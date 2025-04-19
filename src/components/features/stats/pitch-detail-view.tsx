@@ -162,17 +162,19 @@ export const PitchDetailView: React.FC<PitchDetailViewProps> = ({ gamePk, pitche
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {pitchData.map((pitch) => (
-                  <TableRow key={pitch.id}>
-                    <TableCell>{pitch.inning}</TableCell>
-                    <TableCell>{pitch.pitcherName}</TableCell>
-                    <TableCell>{pitch.batterName}</TableCell>
-                    <TableCell>{pitch.count}</TableCell>
-                    <TableCell>{pitch.pitchType}</TableCell>
-                    <TableCell>{pitch.speed}</TableCell>
-                    <TableCell>{pitch.result}</TableCell>
-                  </TableRow>
-                ))}
+                {pitchData
+                  .filter((pitch) => pitch.pitchType !== 'N/A' && pitch.speed !== 'N/A')
+                  .map((pitch) => (
+                    <TableRow key={pitch.id}>
+                      <TableCell>{pitch.inning}</TableCell>
+                      <TableCell>{pitch.pitcherName}</TableCell>
+                      <TableCell>{pitch.batterName}</TableCell>
+                      <TableCell>{pitch.count}</TableCell>
+                      <TableCell>{pitch.pitchType}</TableCell>
+                      <TableCell>{pitch.speed}</TableCell>
+                      <TableCell>{pitch.result}</TableCell>
+                    </TableRow>
+                  ))}
               </TableBody>
             </Table>
             <ScrollBar orientation="vertical" />
