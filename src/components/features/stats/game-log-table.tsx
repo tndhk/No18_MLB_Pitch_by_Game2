@@ -42,7 +42,27 @@ export const GameLogTable: React.FC<GameLogTableProps> = ({ pitcherId, season, o
       onRowClick(null);
       try {
         const fetchedGameLogs = await getGameLog(pitcherId, season);
-        setGameLogs(fetchedGameLogs);
+        // pitchesThrown を詳細APIから取得して上書き (pitch-detail のイベント数をカウント)
+        const enrichedLogs: GameLogRow[] = await Promise.all(
+          fetchedGameLogs.map(async (log) => {
+            try {
+              const res = await fetch(`/api/pitch-data/${log.gamePk}`);
+              if (!res.ok) return log;
+              const detailData: any[] = await res.json();
+              // 選択中投手かつType/Speedが有効な投球イベントのみ数える
+              const count = detailData.filter((d: any) =>
+                d.pitcherId === pitcherId &&
+                d.pitchType !== 'N/A' &&
+                d.speed !== 'N/A'
+              ).length;
+              return { ...log, pitchesThrown: count };
+            } catch (e) {
+              console.warn(`Failed to fetch pitch-detail for gamePk ${log.gamePk}`, e);
+              return log;
+            }
+          })
+        );
+        setGameLogs(enrichedLogs);
       } catch (err) {
         console.error("Error fetching game logs:", err);
         setError(err instanceof Error ? err.message : "試合ログの取得に失敗しました。");
@@ -142,10 +162,14 @@ export const GameLogTable: React.FC<GameLogTableProps> = ({ pitcherId, season, o
               <TableHead>対戦相手</TableHead>
               <TableHead className="text-right">結果</TableHead>
               <TableHead className="text-right">IP</TableHead>
+              <TableHead className="text-right">P</TableHead>
               <TableHead className="text-right">SO</TableHead>
               <TableHead className="text-right">BB</TableHead>
               <TableHead className="text-right">R</TableHead>
               <TableHead className="text-right">WHIP</TableHead>
+              <TableHead className="text-right">H</TableHead>
+              <TableHead className="text-right">ER</TableHead>
+              <TableHead className="text-right">HR</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -162,10 +186,14 @@ export const GameLogTable: React.FC<GameLogTableProps> = ({ pitcherId, season, o
                 <TableCell>{log.opponentName}</TableCell>
                 <TableCell className="text-right">{log.result}</TableCell>
                 <TableCell className="text-right">{log.inningsPitched}</TableCell>
+                <TableCell className="text-right">{log.pitchesThrown}</TableCell>
                 <TableCell className="text-right">{log.strikeOuts}</TableCell>
                 <TableCell className="text-right">{log.baseOnBalls}</TableCell>
                 <TableCell className="text-right">{log.runs}</TableCell>
                 <TableCell className="text-right">{log.whip}</TableCell>
+                <TableCell className="text-right">{log.hits}</TableCell>
+                <TableCell className="text-right">{log.earnedRuns}</TableCell>
+                <TableCell className="text-right">{log.homeRuns}</TableCell>
               </TableRow>
             ))}
           </TableBody>

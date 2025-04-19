@@ -151,6 +151,10 @@ export interface GameLogRow {
   baseOnBalls: number;
   runs: number;
   whip: string;
+  hits: number; // 被安打
+  earnedRuns: number; // 自責点
+  homeRuns: number; // 被本塁打
+  pitchesThrown: number; // 投球数
   result?: 'W' | 'L' | 'S' | '-'; // Win, Loss, Save, or None
 }
 
@@ -214,6 +218,10 @@ export const getGameLog = async (pitcherId: number, season: number): Promise<Gam
         baseOnBalls: split.stat.baseOnBalls,
         runs: split.stat.runs,
         whip: split.stat.whip,
+        hits: (split.stat as any).hits ?? 0,
+        earnedRuns: (split.stat as any).earnedRuns ?? 0,
+        homeRuns: (split.stat as any).homeRuns ?? 0,
+        pitchesThrown: (split.stat as any).pitchesThrown ?? 0,
         result: result,
       };
     });

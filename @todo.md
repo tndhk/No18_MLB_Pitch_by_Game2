@@ -4,7 +4,7 @@
 - [x] 🟡 Next.js プロジェクト初期化 (TypeScript, Tailwind CSS, ESLint)
   - `create-next-app` を使用
   - `globals.mdc`, `dev-rules/tech-stack.mdc` 記載のバージョンに合わせる
-- [ ] 🟡 Shadcn/ui セットアップ
+- [x] 🟡 Shadcn/ui セットアップ
   - `components.json` 設定済み
   - **TODO:** 必要なコンポーネントの初期インストール (例: `npx shadcn-ui@latest add button select table card`)
 - [x] 🟡 Docker 環境構築 (`Dockerfile`, `docker-compose.yml`)
@@ -33,14 +33,14 @@
   - `pitchers.json` を読み込む関数
 
 ## シーズン選択機能 (Phase 1)
-- [~] 🟡 シーズン選択UIコンポーネント (`src/components/features/stats/season-selector.tsx`) 作成
+- [x] 🟡 シーズン選択UIコンポーネント (`src/components/features/stats/season-selector.tsx`) 作成
   - 選択された投手に基づいて利用可能なシーズンを取得・表示 (Client Component)
   - ドロップダウン (Select) またはタブ形式
   - シーズン選択イベントの発火
-- [ ] 🟡 MLB Stats API ラッパー (`src/lib/mlbApi.ts` または `src/dal/mlb.ts`) 基本実装
+- [x] 🟡 MLB Stats API ラッパー (`src/dal/mlb.ts`) 基本実装
   - APIエンドポイント定義
   - `fetch` を使用した基本的なAPI呼び出し関数
-- [ ] 🟡 選手情報取得API連携 (`/people/{personId}/stats?stats=gameLog&group=pitching`)
+- [x] 🟡 選手情報取得API連携 (`/people/{personId}/stats?stats=yearByYear&group=pitching`)
   - 特定選手のシーズン別統計情報を取得し、利用可能なシーズンを抽出するロジック
 
 ## 試合データ表示機能 (Phase 1)
@@ -73,6 +73,13 @@
   - Skeleton コンポーネントによる表示改善
   - ThemeProvider, ModeToggle によるダークモード対応
   - Shadcn/ui コンポーネント (Select, Card) の適用
+
+## 改善・追加検討事項 (Phase 1)
+- [ ] モバイル表示時の投手リストのドロワー化
+- [ ] テーブルのページネーション/ソート機能の追加
+- [ ] 投球データフィルタ・検索機能 (球種やカウントごと)
+- [ ] エラー発生時のトースト通知によるフィードバック
+- [ ] テストコード (Unit/Integration) の追加
 
 ## 将来拡張候補 (Phase 2以降)
 - [ ] ⚪ 投球データの視覚化（ストライクゾーン、速度分布など）
