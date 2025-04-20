@@ -5,7 +5,6 @@ import type { PitchDataRow } from '@/dal/mlb'; // 型のみインポート
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -13,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"; // 大量データ表示のため
 import { Skeleton } from "@/components/ui/skeleton"; // Skeleton をインポート
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"; // Card をインポート
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Card をインポート
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, PieChart, Pie, Cell, Legend } from 'recharts';
 import { Circle, Triangle, X } from 'lucide-react';
 

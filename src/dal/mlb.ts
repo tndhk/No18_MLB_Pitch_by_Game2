@@ -78,11 +78,7 @@ export const getAvailableSeasons = async (pitcherId: number): Promise<Season[]> 
 
 // --- Game Log Related Types --- interfaces
 
-interface MlbGameDate {
-  date: string; // "YYYY-MM-DD"
-  gamePk: number;
-  // ... other fields
-}
+// interface MlbGameDate { /* removed unused */ }
 
 interface MlbGameOpponent {
   id: number;
@@ -108,13 +104,17 @@ interface MlbGameTeams {
 
 interface MlbGamePitchingStats {
   inningsPitched: string; // "X.Y" 形式 e.g., "6.0"
-  wins?: number;      // 勝利数 (1なら勝利投手)
-  losses?: number;    // 敗戦数 (1なら敗戦投手)
-  saves?: number;     // セーブ数 (1ならセーブ)
+  wins?: number;      // 勝利数
+  losses?: number;    // 敗戦数
+  saves?: number;     // セーブ数
   strikeOuts: number;
   baseOnBalls: number;
-  runs: number; // 失点 (Earned Runs ではない可能性あり)
+  runs: number; // 失点
   whip: string; // "X.YY" 形式
+  hits?: number;       // 被安打
+  earnedRuns?: number; // 自責点
+  homeRuns?: number;   // 被本塁打
+  pitchesThrown?: number; // 投球数 (レポート用)
   // ... many other stats
 }
 
@@ -195,23 +195,17 @@ export const getGameLog = async (pitcherId: number, season: number): Promise<Gam
 
     // APIレスポンスを GameLogRow 型にマッピング
     const gameLogs: GameLogRow[] = splits.map((split, idx) => {
-      // 結果コードを判定 (stat の wins/losses/saves を使用)
+      // 結果コードを判定
       let result: GameLogRow['result'] = '-';
-      const stat = split.stat as any;
+      const stat = split.stat;
       if (stat.wins === 1) result = 'W';
       else if (stat.losses === 1) result = 'L';
       else if (stat.saves === 1) result = 'S';
 
-      // gameDate は root の date プロパティを優先し、fallback で split.game.gameDate を使用
-      const rawGameDate = (split as any).date ?? split.game?.gameDate ?? '';
-      const gameDate = typeof rawGameDate === 'string' && rawGameDate.length >= 10
-        ? rawGameDate.substring(0, 10)
-        : rawGameDate;
+      // ゲーム日付
+      const gameDate = split.game.gameDate.substring(0, 10);
 
-      // gamePk は root の gamePk プロパティを優先し、fallback で split.game.gamePk を使用
-      const gamePk = typeof (split as any).gamePk === 'number'
-        ? (split as any).gamePk
-        : (typeof split.game?.gamePk === 'number' ? split.game.gamePk : idx);
+      const gamePk = typeof split.game.gamePk === 'number' ? split.game.gamePk : idx;
 
       return {
         gamePk,
@@ -222,10 +216,10 @@ export const getGameLog = async (pitcherId: number, season: number): Promise<Gam
         baseOnBalls: split.stat.baseOnBalls,
         runs: split.stat.runs,
         whip: split.stat.whip,
-        hits: (split.stat as any).hits ?? 0,
-        earnedRuns: (split.stat as any).earnedRuns ?? 0,
-        homeRuns: (split.stat as any).homeRuns ?? 0,
-        pitchesThrown: (split.stat as any).pitchesThrown ?? 0,
+        hits: split.stat.hits ?? 0,
+        earnedRuns: split.stat.earnedRuns ?? 0,
+        homeRuns: split.stat.homeRuns ?? 0,
+        pitchesThrown: split.stat.pitchesThrown ?? 0,
         result: result,
       };
     });
