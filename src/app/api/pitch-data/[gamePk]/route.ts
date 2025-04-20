@@ -1,12 +1,11 @@
 import { NextResponse, NextRequest } from "next/server";
 import { getPitchData } from "@/dal/mlb";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { gamePk: string } }
-) {
-  // Dynamic route parameter
-  const gamePkStr = params.gamePk;
+export async function GET(request: NextRequest) {
+  // Parse gamePk from URL path
+  const url = new URL(request.url);
+  const segments = url.pathname.split('/');
+  const gamePkStr = segments.pop() || '';
   const gamePk = parseInt(gamePkStr, 10);
   if (isNaN(gamePk)) {
     return NextResponse.json(
