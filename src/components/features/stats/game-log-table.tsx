@@ -75,6 +75,33 @@ export const GameLogTable: React.FC<GameLogTableProps> = ({ pitcherId, season, o
     loadGameLogs();
   }, [pitcherId, season]);
 
+  // 成績合計の計算
+  const totalStats = React.useMemo(() => {
+    const parseIP = (ipStr: string) => {
+      const [whole, dec] = ipStr.split('.');
+      const wholeNum = parseInt(whole, 10) || 0;
+      const decNum = parseInt(dec, 10) || 0;
+      const outs = decNum === 1 ? 1/3 : decNum === 2 ? 2/3 : 0;
+      return wholeNum + outs;
+    };
+    const totalP = gameLogs.reduce((sum, log) => sum + log.pitchesThrown, 0);
+    const totalSO = gameLogs.reduce((sum, log) => sum + log.strikeOuts, 0);
+    const totalBB = gameLogs.reduce((sum, log) => sum + log.baseOnBalls, 0);
+    const totalR = gameLogs.reduce((sum, log) => sum + log.runs, 0);
+    const totalH = gameLogs.reduce((sum, log) => sum + log.hits, 0);
+    const totalER = gameLogs.reduce((sum, log) => sum + log.earnedRuns, 0);
+    const totalHR = gameLogs.reduce((sum, log) => sum + log.homeRuns, 0);
+    const totalW = gameLogs.filter(log => log.result === 'W').length;
+    const totalL = gameLogs.filter(log => log.result === 'L').length;
+    const totalIPFloat = gameLogs.reduce((sum, log) => sum + parseIP(log.inningsPitched), 0);
+    const ipWhole = Math.floor(totalIPFloat);
+    const outsNum = Math.round((totalIPFloat - ipWhole) * 3);
+    const totalIP = `${ipWhole}.${outsNum}`;
+    const totalERA = totalIPFloat > 0 ? ((totalER / totalIPFloat) * 9).toFixed(2) : '0.00';
+    const totalWHIP = totalIPFloat > 0 ? ((totalBB + totalH) / totalIPFloat).toFixed(2) : '0.00';
+    return { totalIP, totalP, totalSO, totalBB, totalR, totalH, totalER, totalHR, totalW, totalL, totalERA, totalWHIP };
+  }, [gameLogs]);
+
   if (pitcherId === null || season === null) {
     return null;
   }
@@ -151,16 +178,30 @@ export const GameLogTable: React.FC<GameLogTableProps> = ({ pitcherId, season, o
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{season}年 試合ログ</CardTitle>
-        <CardDescription>試合を選択すると、下のセクションに投球詳細が表示されます。</CardDescription>
+        <CardTitle>{season} Game Log</CardTitle>
+        <CardDescription>Select a game to view pitch details below.</CardDescription>
+        <div className="mt-2 flex flex-wrap gap-4 text-sm">
+          <div>Games: {gameLogs.length}</div>
+          <div>Wins: {totalStats.totalW}</div>
+          <div>Losses: {totalStats.totalL}</div>
+          <div>IP: {totalStats.totalIP}</div>
+          <div>ERA: {totalStats.totalERA}</div>
+          <div>WHIP: {totalStats.totalWHIP}</div>
+          <div>SO: {totalStats.totalSO}</div>
+          <div>BB: {totalStats.totalBB}</div>
+          <div>R: {totalStats.totalR}</div>
+          <div>H: {totalStats.totalH}</div>
+          <div>ER: {totalStats.totalER}</div>
+          <div>HR: {totalStats.totalHR}</div>
+        </div>
       </CardHeader>
       <CardContent className="p-0">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px]">日付</TableHead>
-              <TableHead>対戦相手</TableHead>
-              <TableHead className="text-right">結果</TableHead>
+              <TableHead className="w-[100px]">Date</TableHead>
+              <TableHead>Opponent</TableHead>
+              <TableHead className="text-right">Result</TableHead>
               <TableHead className="text-right">IP</TableHead>
               <TableHead className="text-right">P</TableHead>
               <TableHead className="text-right">SO</TableHead>

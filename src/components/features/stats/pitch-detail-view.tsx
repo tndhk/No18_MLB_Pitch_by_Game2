@@ -85,6 +85,20 @@ export const PitchDetailView: React.FC<PitchDetailViewProps> = ({ gamePk, pitche
 
   const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#00C49F', '#FFBB28'];
 
+  // バッター（打席）ごとに投球をグルーピング
+  const groupedByAtBat = React.useMemo(() => {
+    const groups: Record<string, PitchDataRow[]> = {};
+    pitchData
+      .filter(p => p.pitchType !== 'N/A' && p.speed !== 'N/A')
+      .forEach(p => {
+        const atBatIndex = p.id.split('-')[0];
+        if (!groups[atBatIndex]) groups[atBatIndex] = [];
+        groups[atBatIndex].push(p);
+      });
+    const sortedKeys = Object.keys(groups).sort((a, b) => parseInt(a) - parseInt(b));
+    return sortedKeys.map(key => ({ atBatIndex: key, pitches: groups[key] }));
+  }, [pitchData]);
+
   if (gamePk === null) {
     // Card を使って表示を調整
     return (
@@ -221,28 +235,35 @@ export const PitchDetailView: React.FC<PitchDetailViewProps> = ({ gamePk, pitche
               </TableRow>
             </TableHeader>
             <TableBody>
-              {pitchData
-                .filter((pitch) => pitch.pitchType !== 'N/A' && pitch.speed !== 'N/A')
-                .map((pitch) => (
-                  <TableRow key={pitch.id}>
-                    <TableCell>{pitch.inning}</TableCell>
-                    <TableCell>{pitch.pitcherName}</TableCell>
-                    <TableCell>{pitch.batterName}</TableCell>
-                    <TableCell>{pitch.count}</TableCell>
-                    <TableCell>{pitch.pitchType}</TableCell>
-                    <TableCell>{pitch.speed}</TableCell>
-                    <TableCell className="flex items-center gap-1">
-                      {(pitch.result.toLowerCase().includes('strike') || pitch.result.toLowerCase().includes('out')) ? (
-                        <Circle className="text-blue-500" fill="currentColor" size={16} />
-                      ) : pitch.result.toLowerCase().includes('ball') ? (
-                        <Triangle className="text-gray-500" size={16} />
-                      ) : (
-                        <X className="text-red-500" size={16} />
-                      )}
-                      <span>{pitch.result}</span>
+              {groupedByAtBat.map(({ atBatIndex, pitches }) => (
+                <React.Fragment key={atBatIndex}>
+                  <TableRow>
+                    <TableCell colSpan={7} className="bg-gray-100 dark:bg-gray-800 font-semibold text-gray-800 dark:text-white">
+                      {pitches[0].batterName}
                     </TableCell>
                   </TableRow>
-                ))}
+                  {pitches.map(pitch => (
+                    <TableRow key={pitch.id}>
+                      <TableCell>{pitch.inning}</TableCell>
+                      <TableCell>{pitch.pitcherName}</TableCell>
+                      <TableCell>{pitch.batterName}</TableCell>
+                      <TableCell>{pitch.count}</TableCell>
+                      <TableCell>{pitch.pitchType}</TableCell>
+                      <TableCell>{pitch.speed}</TableCell>
+                      <TableCell className="flex items-center gap-1">
+                        {(pitch.result.toLowerCase().includes('strike') || pitch.result.toLowerCase().includes('out')) ? (
+                          <Circle className="text-blue-500" fill="currentColor" size={16} />
+                        ) : pitch.result.toLowerCase().includes('ball') ? (
+                          <Triangle className="text-gray-500" size={16} />
+                        ) : (
+                          <X className="text-red-500" size={16} />
+                        )}
+                        <span>{pitch.result}</span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </React.Fragment>
+              ))}
             </TableBody>
           </Table>
           <ScrollBar orientation="vertical" />

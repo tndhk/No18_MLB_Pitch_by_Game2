@@ -108,6 +108,9 @@ interface MlbGameTeams {
 
 interface MlbGamePitchingStats {
   inningsPitched: string; // "X.Y" 形式 e.g., "6.0"
+  wins?: number;      // 勝利数 (1なら勝利投手)
+  losses?: number;    // 敗戦数 (1なら敗戦投手)
+  saves?: number;     // セーブ数 (1ならセーブ)
   strikeOuts: number;
   baseOnBalls: number;
   runs: number; // 失点 (Earned Runs ではない可能性あり)
@@ -192,11 +195,12 @@ export const getGameLog = async (pitcherId: number, season: number): Promise<Gam
 
     // APIレスポンスを GameLogRow 型にマッピング
     const gameLogs: GameLogRow[] = splits.map((split, idx) => {
-      // 結果コードを判定
+      // 結果コードを判定 (stat の wins/losses/saves を使用)
       let result: GameLogRow['result'] = '-';
-      if (split.isWin) result = 'W';
-      else if (split.isLoss) result = 'L';
-      else if (split.isSave) result = 'S';
+      const stat = split.stat as any;
+      if (stat.wins === 1) result = 'W';
+      else if (stat.losses === 1) result = 'L';
+      else if (stat.saves === 1) result = 'S';
 
       // gameDate は root の date プロパティを優先し、fallback で split.game.gameDate を使用
       const rawGameDate = (split as any).date ?? split.game?.gameDate ?? '';
