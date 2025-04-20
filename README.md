@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MLB Pitch History
+日本人投手データビューアー MVP
 
-## Getting Started
+## 概要
 
-First, run the development server:
+MLB の公開 API から日本人投手のシーズン・試合ログおよび投球詳細データを取得し、統計情報やチャート表示を行う Web アプリケーションです。
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+主な機能：
+- 日本人投手リストから投手を選択
+- シーズン選択（取得可能な年度）
+- 年次試合ログテーブル（勝敗、IP、SO、BB、R、H、ER、HR、ERA、WHIP など）
+- 投球詳細画面（球種、速度、カウント、結果）
+- 速度分布ヒストグラム・球種割合ドーナツチャート（Recharts）
+- ストライク/ボール/アウト/安打などを色分けアイコン化
+
+## 使用技術
+
+- Next.js 14 (TypeScript)
+- React 18
+- Tailwind CSS
+- Shadcn/ui, Radix UI
+- Recharts (グラフ表示)
+- Lucide React (アイコン)
+- Node.js
+
+## セットアップと実行
+
+1. リポジトリをクローン
+   ```bash
+   git clone https://github.com/your-org/mlb_pitch_history.git
+   cd mlb_pitch_history
+   ```
+2. Docker イメージをビルド
+   ```bash
+   docker build -t mlb-pitch-history .
+   ```
+3. Docker コンテナを実行
+   ```bash
+   docker run --rm -p 3000:3000 mlb-pitch-history
+   ```
+4. ブラウザで http://localhost:3000 を開く
+
+## ディレクトリ構成
+
+```text
+src/
+├─ app/             Next.js アプリケーションルート
+├─ components/      UI コンポーネント
+│  ├─ features/     投球詳細／試合ログ関連
+│  └─ ui/           テーブル／カード／スケルトンなど共通
+├─ dal/             データアクセスレイヤ（MLB APIラッパー）
+└─ lib/             ユーティリティ／型定義
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## デプロイ
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Vercel などのプラットフォームでのデプロイを推奨します。
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 今後の拡張予定
 
-## Learn More
+- ユーザー認証・お気に入り投手機能
+- リアルタイムライブ更新（WebSocket/SSE）
+- ストライクゾーンヒートマップ表示
+- モバイル向け PWA サポート
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+© 2024 Your Name or Organization
