@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { getPitchData } from "@/dal/mlb";
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { gamePk: string } }
 ) {
   // Dynamic route parameter
