@@ -3,10 +3,10 @@ import { getPitchData } from "@/dal/mlb";
 
 export async function GET(
   request: Request,
-  { params }: { params: any }
+  { params }: { params: { gamePk: string } }
 ) {
-  // params は非同期の可能性があるため await してから使用
-  const { gamePk: gamePkStr } = await params;
+  // Dynamic route parameter
+  const gamePkStr = params.gamePk;
   const gamePk = parseInt(gamePkStr, 10);
   if (isNaN(gamePk)) {
     return NextResponse.json(

@@ -5,7 +5,6 @@ import { getGameLog, GameLogRow } from '@/dal/mlb';
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -14,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import type { PitchDataRow } from '@/dal/mlb';
 
 interface GameLogTableProps {
   pitcherId: number | null;
@@ -48,9 +48,9 @@ export const GameLogTable: React.FC<GameLogTableProps> = ({ pitcherId, season, o
             try {
               const res = await fetch(`/api/pitch-data/${log.gamePk}`);
               if (!res.ok) return log;
-              const detailData: any[] = await res.json();
+              const detailData: PitchDataRow[] = await res.json();
               // 選択中投手かつType/Speedが有効な投球イベントのみ数える
-              const count = detailData.filter((d: any) =>
+              const count = detailData.filter((d: PitchDataRow) =>
                 d.pitcherId === pitcherId &&
                 d.pitchType !== 'N/A' &&
                 d.speed !== 'N/A'
@@ -73,7 +73,7 @@ export const GameLogTable: React.FC<GameLogTableProps> = ({ pitcherId, season, o
     };
 
     loadGameLogs();
-  }, [pitcherId, season]);
+  }, [pitcherId, season, onRowClick]);
 
   // 成績合計の計算
   const totalStats = React.useMemo(() => {
