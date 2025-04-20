@@ -202,8 +202,9 @@ export const getGameLog = async (pitcherId: number, season: number): Promise<Gam
       else if (stat.losses === 1) result = 'L';
       else if (stat.saves === 1) result = 'S';
 
-      // ゲーム日付
-      const gameDate = split.game.gameDate.substring(0, 10);
+      // ゲーム日付（存在しない場合は空文字）
+      const rawGameDate = typeof split.game?.gameDate === 'string' ? split.game.gameDate : '';
+      const gameDate = rawGameDate.length >= 10 ? rawGameDate.substring(0, 10) : rawGameDate;
 
       const gamePk = typeof split.game.gamePk === 'number' ? split.game.gamePk : idx;
 
