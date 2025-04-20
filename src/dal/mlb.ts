@@ -127,6 +127,7 @@ interface MlbGameLogSplitDetail {
     status: MlbGameStatus;
     teams: MlbGameTeams;
   };
+  date?: string; // YYYY-MM-DD from API
   opponent: MlbGameOpponent;
   stat: MlbGamePitchingStats;
   isHome: boolean;
@@ -202,10 +203,9 @@ export const getGameLog = async (pitcherId: number, season: number): Promise<Gam
       else if (stat.losses === 1) result = 'L';
       else if (stat.saves === 1) result = 'S';
 
-      // ゲーム日付（split.date または split.game.gameDate を使用）
-      const dateFallback = (split as any).date;
-      const rawGameDate = typeof dateFallback === 'string'
-        ? dateFallback
+      // ゲーム日付（優先: split.date, fallback: split.game.gameDate）
+      const rawGameDate = typeof split.date === 'string'
+        ? split.date
         : typeof split.game?.gameDate === 'string'
           ? split.game.gameDate
           : '';
